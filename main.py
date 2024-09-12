@@ -16,6 +16,9 @@ def main() -> None:
     if "timeserie_name" not in st.query_params:
         st.query_params["timeserie_name"] = None
 
+    if "mnap_or_maaiveld" not in st.query_params:
+        st.query_params["mnap_or_maaiveld"] = 0
+
     st.title('Vitens Grondwater Viewer')
 
 
@@ -104,6 +107,7 @@ def main() -> None:
                     maaiveld_nap = st.radio(
                         label="Kies weergave:",
                         options=["mNAP", "Maaiveld"],
+                        index=int(st.query_params["mnap_or_maaiveld"])
                     )
 
                     event_data = get_event_data(timeseries_options[selected_timeserie], start_date, end_date, WINDOW_OPTIONS[window])
