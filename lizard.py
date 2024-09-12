@@ -7,8 +7,8 @@ from config import VITENS_LIZARD_UUID,LIZARD_API_URL
 
 def get_lizard_locations(search_input:str) -> dict[str, str]:
     """Returns all Lizard locations based on a location name search input string."""
-    url = f"{LIZARD_API_URL}/locations/?organisation__uuid={VITENS_LIZARD_UUID}&name__startswith={search_input}&limit=1000"
-
+    url = f"{LIZARD_API_URL}/locations/?organisation__uuid={VITENS_LIZARD_UUID}&name__startswith={search_input}&limit=1000&&object__type=filter"
+    
     locations = {}
 
     while url:
@@ -59,3 +59,14 @@ def get_event_data(timeserie_uuid:str, start: datetime, end: datetime, window: s
     r = requests.get(url)
 
     return pd.DataFrame(r.json()["results"])
+
+def get_maaiveld_hoogte(selected_location: str) -> float:
+    """Looks up the maaiveld hoogte in the filter object in Lizard."""
+    url = f"{LIZARD_API_URL}/locations/{selected_location}"
+    r = requests.get(url)
+    object_id = r.json()["object"]["id"]
+    
+    url = f"{LIZARD_API_URL}/filters/{object_id}"
+    r = requests.get(url)
+
+    return r.json()["top_level"]

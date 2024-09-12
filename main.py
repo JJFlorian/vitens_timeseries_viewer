@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import datetime
 
-from lizard import get_lizard_locations, get_lizard_timeseries, get_timeserie_metadata, get_event_data
+from lizard import get_lizard_locations, get_maaiveld_hoogte, get_lizard_timeseries, get_timeserie_metadata, get_event_data
 from config import WINDOW_OPTIONS
 
 def main() -> None:
@@ -71,7 +71,6 @@ def main() -> None:
                 index=index,
             )
 
-            st.divider()
 
             if selected_timeserie:
                 timeserie_metadata = get_timeserie_metadata(timeseries_options[selected_timeserie])
@@ -102,7 +101,24 @@ def main() -> None:
                         index=0,
                     )
 
+                    maaiveld_nap = st.radio(
+                        label="Kies weergave:",
+                        options=["mNAP", "Maaiveld"],
+                    )
+
                     event_data = get_event_data(timeseries_options[selected_timeserie], start_date, end_date, WINDOW_OPTIONS[window])
+                    
+                    maaiveld_hoogte = get_maaiveld_hoogte(location_search_results[selected_location])
+
+                    y_label = timeserie_metadata["observation_type"]["unit"]
+
+                    if maaiveld_nap == "Maaiveld":
+                        event_data['avg'] = event_data['avg'] - maaiveld_hoogte
+                        y_label = "m tov maaiveld"
+
+                    st.divider()
+
+                    st.text(f"Maaiveld hoogte: {maaiveld_hoogte}")
 
                     if not event_data.empty:
                         st.line_chart(
@@ -110,7 +126,7 @@ def main() -> None:
                             x='time',
                             y='avg',
                             x_label="Tijd",
-                            y_label=timeserie_metadata["observation_type"]["unit"], 
+                            y_label=y_label, 
                         )
 
 if __name__ == "__main__":
